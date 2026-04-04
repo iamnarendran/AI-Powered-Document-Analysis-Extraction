@@ -23,7 +23,7 @@ This API accepts a document (PDF, DOCX, or image) as a Base64-encoded string, ex
 
 2. **Single-call AI Analysis** — One structured prompt to the LLM returns all three outputs (summary, entities, sentiment) as JSON. This keeps latency low (~2–3s) and cost minimal (~$0.003/doc).
 
-3. **Dual LLM support** — Primary: Claude 3.5 Sonnet via OpenRouter. Fallback: Gemini 2.0 Flash via OpenRouter or direct Gemini API.
+3. **Dual LLM support** — Primary: gpt-oss-20b via OpenRouter. Fallback: Gemini 2.0 Flash via OpenRouter or direct Gemini API.
 
 ---
 
@@ -31,7 +31,7 @@ This API accepts a document (PDF, DOCX, or image) as a Base64-encoded string, ex
 
 - **Framework:** FastAPI (async Python)
 - **Document Processing:** PyMuPDF, python-docx, Tesseract OCR (via pytesseract)
-- **AI Model:** Claude 3.5 Sonnet (primary) / Gemini 2.0 Flash (fallback) via OpenRouter
+- **AI Model:** gpt-oss-20b (primary) / Gemini 2.0 Flash (fallback) via OpenRouter
 - **HTTP Client:** httpx (async)
 - **Deployment:** Docker + Render
 
