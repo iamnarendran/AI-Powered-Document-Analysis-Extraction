@@ -2,7 +2,7 @@ import io
 import logging
 from typing import Optional
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 
 def extract_text(file_bytes: bytes, file_type: str) -> str:
