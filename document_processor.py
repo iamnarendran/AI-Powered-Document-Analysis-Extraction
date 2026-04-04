@@ -2,7 +2,7 @@ import io
 import logging
 from typing import Optional
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(name)
 
 
 def extract_text(file_bytes: bytes, file_type: str) -> str:
@@ -64,7 +64,7 @@ def _extract_pdf(file_bytes: bytes) -> str:
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
             # Render at 2x resolution for better OCR accuracy
-            mat = fitz.Matrix(1.5, 1.5)  # 1.5x = good accuracy, ~40% faster than 2x
+            mat = fitz.Matrix(2.0, 2.0)
             pix = page.get_pixmap(matrix=mat)
             img = Image.open(io.BytesIO(pix.tobytes("png")))
 
@@ -123,7 +123,7 @@ def _extract_image(file_bytes: bytes) -> str:
     try:
         image = Image.open(io.BytesIO(file_bytes))
 
-        # Try English first, fallback to multi-language
+# Try English first, fallback to multi-language
         try:
             text = pytesseract.image_to_string(image, lang="eng+hin", config="--psm 6")
         except Exception:
