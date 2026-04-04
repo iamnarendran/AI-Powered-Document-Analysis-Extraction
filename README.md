@@ -160,10 +160,10 @@ curl -X POST https://your-domain.onrender.com/api/document-analyze \
 ```
 doc-analyzer/
 ├── src/
-│   ├── __init__.py
-│   ├── main.py                # FastAPI app, routes, auth
-│   ├── document_processor.py  # PDF / DOCX / Image text extraction
-│   └── ai_analyzer.py         # LLM call for summary, entities, sentiment
+├── __init__.py
+├── main.py                # FastAPI app, routes, auth
+├── document_processor.py  # PDF / DOCX / Image text extraction
+├── ai_analyzer.py         # LLM call for summary, entities, sentiment
 ├── Dockerfile
 ├── render.yaml
 ├── requirements.txt
