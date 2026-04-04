@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 
-from src.document_processor import extract_text
-from src.ai_analyzer import analyze_document
+from document_processor import extract_text
+from ai_analyzer import analyze_document
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
