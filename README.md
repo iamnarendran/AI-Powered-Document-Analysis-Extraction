@@ -1,4 +1,6 @@
 <img width="1345" height="58" alt="image" src="https://github.com/user-attachments/assets/b0afde76-2934-4d5c-88ee-e503a2f7cff4" />
+<img width="1039" height="227" alt="image" src="https://github.com/user-attachments/assets/0b480b4a-6f49-4f5e-8472-09044925fb57" />
+<img width="686" height="58" alt="image" src="https://github.com/user-attachments/assets/860996c4-fb37-47bd-8d1c-6eef84aeeb3e" />
 
 ## [🗒️✨ AI-Powered-Document-Analysis-Extraction](https://docintel-ai.netlify.app/)
 An AI-powered document processing API that extracts text, generates summaries, identifies entities, and classifies sentiment from PDF, DOCX, and image files.
