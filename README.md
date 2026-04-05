@@ -1,11 +1,11 @@
-<img width="1345" height="58" alt="image" src="https://github.com/user-attachments/assets/b0afde76-2934-4d5c-88ee-e503a2f7cff4" />
 <img width="1039" height="227" alt="image" src="https://github.com/user-attachments/assets/0b480b4a-6f49-4f5e-8472-09044925fb57" />
-<img width="686" height="58" alt="image" src="https://github.com/user-attachments/assets/860996c4-fb37-47bd-8d1c-6eef84aeeb3e" />
 
 ## [🗒️✨ AI-Powered-Document-Analysis-Extraction](https://docintel-ai.netlify.app/)
 An AI-powered document processing API that extracts text, generates summaries, identifies entities, and classifies sentiment from PDF, DOCX, and image files.
 
 Built for **GUVI Hackathon 2026 — Track 2: AI-Powered Document Analysis & Extraction**.
+
+<img width="872" height="127" alt="image" src="https://github.com/user-attachments/assets/899b9d36-2763-4b8e-a46b-012e121ae88e" />
 
 ---
 
@@ -23,6 +23,8 @@ This API accepts a document (PDF, DOCX, or image) as a Base64-encoded string, ex
    - PDF → PyMuPDF (fast, accurate layout extraction)
    - DOCX → python-docx (paragraphs + table text)
    - Image → Tesseract OCR (English + Hindi language packs)
+
+<img width="872" height="392" alt="image" src="https://github.com/user-attachments/assets/1ac71189-d1ae-40f0-b15a-67b0378d2198" />
 
 2. **Single-call AI Analysis** — One structured prompt to the LLM returns all three outputs (summary, entities, sentiment) as JSON. This keeps latency low (~2–3s) and cost minimal (~$0.003/doc).
 
@@ -85,6 +87,7 @@ API docs available at: http://localhost:8000/docs
 ---
 
 ## API Usage
+<img width="1334" height="171" alt="image" src="https://github.com/user-attachments/assets/3f207754-e0af-423a-8c88-d84b03e8e38d" />
 
 ### Authentication
 
@@ -108,6 +111,7 @@ POST /api/document-analyze
   "fileBase64": "<base64-encoded file content>"
 }
 ```
+<img width="872" height="119" alt="image" src="https://github.com/user-attachments/assets/6195b805-fb5b-4dbd-9409-b0dddda1b1fc" />
 
 `fileType` accepts: `pdf`, `docx`, `image`
 
@@ -155,6 +159,7 @@ curl -X POST https://your-domain.onrender.com/api/document-analyze \
 6. Deploy — your public URL will be `https://doc-analyzer.onrender.com`
 
 > **Tip:** Add a free cronjobs or UptimeRobot monitor pinging `/health` every 5 minutes to prevent Render's free tier from sleeping.
+<img width="872" height="89" alt="image" src="https://github.com/user-attachments/assets/8ed87200-f5b3-4491-a411-24a44477c9da" />
 
 ---
 
@@ -174,6 +179,10 @@ doc-analyzer/
 ├── .gitignore
 └── README.md
 ```
+----
+
+## Inference Output
+
 <img width="1294" height="649" alt="Screenshot from 2026-04-04 21-15-02" src="https://github.com/user-attachments/assets/d66fef96-6522-4311-9e74-4efc7d9b3ad8" />
 <img width="1294" height="649" alt="Screenshot from 2026-04-04 21-23-55" src="https://github.com/user-attachments/assets/e678b1e3-aef5-42e1-97bc-4501673046c3" />
 <img width="1294" height="649" alt="Screenshot from 2026-04-04 23-05-04" src="https://github.com/user-attachments/assets/7b75e22c-e901-4429-b499-084aa84849b8" />
