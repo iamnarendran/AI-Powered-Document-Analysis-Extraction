@@ -87,7 +87,7 @@ API docs available at: http://localhost:8000/docs
 ---
 
 ## API Usage
-<img width="1334" height="171" alt="image" src="https://github.com/user-attachments/assets/3f207754-e0af-423a-8c88-d84b03e8e38d" />
+<img width="840" height="71" alt="image" src="https://github.com/user-attachments/assets/847b111d-3a31-4237-a0b7-70e8066f1e27" />
 
 ### Authentication
 
@@ -184,6 +184,12 @@ doc-analyzer/
 ## Inference Output
 
 <img width="1294" height="649" alt="Screenshot from 2026-04-04 21-15-02" src="https://github.com/user-attachments/assets/d66fef96-6522-4311-9e74-4efc7d9b3ad8" />
+
+----
+
 <img width="1294" height="649" alt="Screenshot from 2026-04-04 21-23-55" src="https://github.com/user-attachments/assets/e678b1e3-aef5-42e1-97bc-4501673046c3" />
+
+----
+
 <img width="1294" height="649" alt="Screenshot from 2026-04-04 23-05-04" src="https://github.com/user-attachments/assets/7b75e22c-e901-4429-b499-084aa84849b8" />
 
