@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocIntel – Document Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f14; --surface: #151820; --surface2: #1c2030; --border: #252a38;
+    --accent: #7fffb2; --accent2: #4de8ff; --text: #e8ecf4; --muted: #6b748a;
+    --error: #ff6b6b; --warn: #ffb347; --pos: #7fffb2; --neg: #ff6b6b; --neu: #4de8ff;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 20px 28px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+  .logo-mark { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo-mark svg { width: 20px; height: 20px; }
+  .header-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; letter-spacing: -0.3px; }
+  .header-sub { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+  .status-pill { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; gap: 5px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+  .dot.active { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .config-bar { padding: 12px 28px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; background: var(--surface); }
+  .config-field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px; }
+  .config-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+  .config-input { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; transition: border-color .2s; width: 100%; }
+  .config-input:focus { border-color: var(--accent); }
+  .config-input::placeholder { color: var(--muted); }
+  .main { display: flex; gap: 0; flex: 1; overflow: hidden; }
+  .left-panel { width: 340px; min-width: 300px; border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+  .section-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .drop-zone { border: 1.5px dashed var(--border); border-radius: 12px; padding: 28px 20px; text-align: center; cursor: pointer; transition: all .2s; position: relative; }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(127,255,178,.04); }
+  .drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .drop-icon { font-size: 28px; margin-bottom: 10px; }
+  .drop-main { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .drop-sub { font-size: 11px; color: var(--muted); }
+  .drop-formats { margin-top: 10px; display: flex; gap: 6px; justify-content: center; }
+  .fmt-badge { font-family: 'DM Mono', monospace; font-size: 9px; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); }
+  .file-preview { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: none; }
+  .file-preview.visible { display: block; }
+  .file-preview-row { display: flex; align-items: center; gap: 10px; }
+  .file-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .file-name { font-weight: 500; font-size: 13px; word-break: break-all; }
+  .file-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .remove-btn { margin-left: auto; background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px; flex-shrink: 0; }
+  .remove-btn:hover { border-color: var(--error); color: var(--error); }
+  .analyze-btn { background: var(--accent); color: #0d0f14; border: none; border-radius: 10px; padding: 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .analyze-btn:hover:not(:disabled) { background: #a0ffcc; transform: translateY(-1px); }
+  .analyze-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(0,0,0,.3); border-top-color: #000; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .recent-list { display: flex; flex-direction: column; gap: 6px; }
+  .recent-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: border-color .15s; font-size: 12px; }
+  .recent-item:hover { border-color: var(--accent2); }
+  .recent-sentiment { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 4px; }
+  .s-pos { background: rgba(127,255,178,.12); color: var(--pos); }
+  .s-neg { background: rgba(255,107,107,.12); color: var(--neg); }
+  .s-neu { background: rgba(77,232,255,.12); color: var(--neu); }
+  .right-panel { flex: 1; padding: 20px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); text-align: center; gap: 12px; }
+  .empty-state .big-icon { font-size: 48px; opacity: .3; }
+  .empty-state p { font-size: 13px; max-width: 240px; line-height: 1.6; }
+  .result-header { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .result-filename { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
+  .result-ts { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  .badge { padding: 4px 10px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
+  .badge-pdf { background: rgba(255,107,107,.15); color: #ff6b6b; }
+  .badge-docx { background: rgba(77,232,255,.15); color: #4de8ff; }
+  .badge-image { background: rgba(255,179,71,.15); color: #ffb347; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .card-title { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .summary-text { font-size: 14px; line-height: 1.7; color: var(--text); }
+  .sentiment-display { display: flex; align-items: center; gap: 14px; }
+  .sentiment-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .sc-pos { background: rgba(127,255,178,.1); border: 2px solid var(--pos); }
+  .sc-neg { background: rgba(255,107,107,.1); border: 2px solid var(--neg); }
+  .sc-neu { background: rgba(77,232,255,.1); border: 2px solid var(--neu); }
+  .sentiment-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px; }
+  .sentiment-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .entities-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .entity-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .entity-type { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+  .entity-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .entity-tag { background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px; font-size: 11px; font-family: 'DM Mono', monospace; }
+  .entity-empty { font-size: 11px; color: var(--muted); font-style: italic; }
+  .json-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: 'DM Mono', monospace; font-size: 11px; line-height: 1.7; color: #8892aa; white-space: pre-wrap; word-break: break-all; max-height: 220px; overflow-y: auto; display: none; }
+  .json-block .jk { color: #4de8ff; } .json-block .jv { color: #7fffb2; } .json-block .js { color: #ffb347; }
+  .toggle-json { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; cursor: pointer; margin-top: 8px; transition: color .15s, border-color .15s; }
+  .toggle-json:hover { color: var(--accent2); border-color: var(--accent2); }
+  .error-box { background: rgba(255,107,107,.08); border: 1px solid rgba(255,107,107,.3); border-radius: 10px; padding: 16px; display: none; }
+  .error-title { color: var(--error); font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .error-msg { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .loading-state { display: none; flex-direction: column; align-items: center; gap: 16px; padding: 40px 0; }
+  .big-spinner { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+  .loading-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+  .loading-steps { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .ls { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 8px; opacity: .4; transition: opacity .3s; }
+  .ls.active { opacity: 1; color: var(--accent); }
+  .ls::before { content: '○'; font-family: 'DM Mono', monospace; }
+  .ls.active::before { content: '◉'; }
+  @media (max-width: 640px) {
+    .main { flex-direction: column; }
+    .left-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .entities-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-mark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0d0f14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/>
+    </svg>
+  </div>
+  <div>
+    <div class="header-title">DocIntel</div>
+    <div class="header-sub">AI-Powered Document Analysis · Track 2</div>
+  </div>
+  <div class="status-pill" id="statusPill">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">not connected</span>
+  </div>
+</header>
+<div class="config-bar">
+  <div class="config-field" style="max-width:380px">
+    <div class="config-label">API Endpoint URL</div>
+    <input class="config-input" id="endpointUrl" type="text" placeholder="https://your-app.onrender.com/api/document-analyze">
+  </div>
+  <div class="config-field" style="max-width:260px">
+    <div class="config-label">x-api-key</div>
+    <input class="config-input" id="apiKey" type="password" placeholder="sk_track2_987654321">
+  </div>
+  <div style="display:flex;align-items:flex-end">
+    <button onclick="testConnection()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 14px;cursor:pointer;font-size:12px;font-family:'DM Mono',monospace;white-space:nowrap;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)'">⚡ Test Connection</button>
+  </div>
+</div>
+<div class="main">
+  <div class="left-panel">
+    <div>
+      <div class="section-label">Upload Document</div>
+      <div class="drop-zone" id="dropZone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.webp,.bmp,.tiff" onchange="handleFileSelect(event)">
+        <div class="drop-icon">📂</div>
+        <div class="drop-main">Drop file or click to browse</div>
+        <div class="drop-sub">Upload a document to analyze</div>
+        <div class="drop-formats">
+          <span class="fmt-badge">PDF</span><span class="fmt-badge">DOCX</span><span class="fmt-badge">PNG</span><span class="fmt-badge">JPG</span>
+        </div>
+      </div>
+    </div>
+    <div class="file-preview" id="filePreview">
+      <div class="file-preview-row">
+        <div class="file-icon" id="fileIconEl"></div>
+        <div><div class="file-name" id="fileNameEl"></div><div class="file-meta" id="fileMetaEl"></div></div>
+        <button class="remove-btn" onclick="clearFile()">✕</button>
+      </div>
+    </div>
+    <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()" disabled>
+      <div class="spinner" id="btnSpinner"></div>
+      <span id="btnText">⚡ Analyze Document</span>
+    </button>
+    <div id="recentSection" style="display:none">
+      <div class="section-label">Recent Results</div>
+      <div class="recent-list" id="recentList"></div>
+    </div>
+  </div>
+  <div class="right-panel" id="rightPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="big-icon">🔬</div>
+      <p>Upload a PDF, DOCX, or image file and click Analyze to extract intelligence from your document.</p>
+    </div>
+    <div class="loading-state" id="loadingState">
+      <div class="big-spinner"></div>
+      <div>
+        <div class="loading-text" id="loadingLabel">Sending to API...</div>
+        <div class="loading-steps">
+          <div class="ls" id="ls1">Encoding document</div>
+          <div class="ls" id="ls2">Extracting text</div>
+          <div class="ls" id="ls3">Running AI analysis</div>
+          <div class="ls" id="ls4">Formatting response</div>
+        </div>
+      </div>
+    </div>
+    <div class="error-box" id="errorBox">
+      <div class="error-title">❌ Request Failed</div>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+    <div id="resultContent" style="display:none">
+      <div class="result-header">
+        <span class="badge" id="resultBadge"></span>
+        <div><div class="result-filename" id="resultFilename"></div><div class="result-ts" id="resultTs"></div></div>
+      </div>
+      <div class="card"><div class="card-title">📋 Summary</div><div class="summary-text" id="summaryText"></div></div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:stretch">
+        <div class="card" style="min-width:160px">
+          <div class="card-title">💬 Sentiment</div>
+          <div class="sentiment-display">
+            <div class="sentiment-circle" id="sentimentCircle"></div>
+            <div><div class="sentiment-label" id="sentimentLabel"></div><div class="sentiment-sub" id="sentimentSub"></div></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-title">🏷️ Entities</div><div class="entities-grid" id="entitiesGrid"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">{ } Raw Response</div>
+        <button class="toggle-json" onclick="toggleJson()">Show JSON</button>
+        <div class="json-block" id="jsonBlock"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+let currentFile=null,recentResults=[],jsonVisible=false;
+function handleDragOver(e){e.preventDefault();document.getElementById('dropZone').classList.add('drag-over');}
+function handleDragLeave(e){document.getElementById('dropZone').classList.remove('drag-over');}
+function handleDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)loadFile(f);}
+function handleFileSelect(e){const f=e.target.files[0];if(f)loadFile(f);}
+function getFileType(n){const e=n.split('.').pop().toLowerCase();if(e==='pdf')return'pdf';if(['docx','doc'].includes(e))return'docx';if(['png','jpg','jpeg','webp','bmp','tiff'].includes(e))return'image';return null;}
+function getFileIcon(t){const m={pdf:{icon:'📄✨',bg:'rgba(255,107,107,.12)'},docx:{icon:'📝',bg:'rgba(77,232,255,.12)'},image:{icon:'🖼️',bg:'rgba(255,179,71,.12)'}};return m[t]||{icon:'📁',bg:'rgba(107,116,138,.12)'};}
+function loadFile(file){const ft=getFileType(file.name);if(!ft){showError('Unsupported file type. Use PDF, DOCX, or image.');return;}currentFile={file,type:ft};const p=document.getElementById('filePreview');p.classList.add('visible');const{icon,bg}=getFileIcon(ft);document.getElementById('fileIconEl').innerHTML=icon;document.getElementById('fileIconEl').style.background=bg;document.getElementById('fileNameEl').textContent=file.name;document.getElementById('fileMetaEl').textContent=`${(file.size/1024).toFixed(1)} KB · ${ft.toUpperCase()}`;document.getElementById('analyzeBtn').disabled=false;hideResults();}
+function clearFile(){currentFile=null;document.getElementById('filePreview').classList.remove('visible');document.getElementById('fileInput').value='';document.getElementById('analyzeBtn').disabled=true;hideResults();}
+async function testConnection(){const url=document.getElementById('endpointUrl').value.trim();if(!url){alert('Enter endpoint URL first');return;}const base=url.replace('/api/document-analyze','');const dot=document.getElementById('statusDot'),txt=document.getElementById('statusText');dot.className='dot';txt.textContent='checking...';try{const r=await fetch(`${base}/health`,{signal:AbortSignal.timeout(6000)});if(r.ok){dot.className='dot active';txt.textContent='connected';}else{dot.className='dot';txt.textContent=`error ${r.status}`;}}catch(e){dot.className='dot';txt.textContent='unreachable';}}
+async function runAnalysis(){const url=document.getElementById('endpointUrl').value.trim(),key=document.getElementById('apiKey').value.trim();if(!url){showError('Enter API endpoint URL.');return;}if(!key){showError('Enter x-api-key.');return;}if(!currentFile){showError('Upload a file first.');return;}setLoading(true);hideError();hideResults();const steps=['ls1','ls2','ls3','ls4'];let si=0;const st=setInterval(()=>{steps.forEach(s=>document.getElementById(s).classList.remove('active'));if(si<steps.length){document.getElementById(steps[si]).classList.add('active');si++;}},900);try{const b64=await fileToBase64(currentFile.file);const payload={fileName:currentFile.file.name,fileType:currentFile.type,fileBase64:b64};const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key},body:JSON.stringify(payload)});const data=await resp.json();clearInterval(st);if(!resp.ok){showError(`API ${resp.status}: ${data.detail||JSON.stringify(data)}`);setLoading(false);return;}setLoading(false);renderResult(data,currentFile.type);addToRecent(data,currentFile.type);}catch(e){clearInterval(st);setLoading(false);showError(`Request failed: ${e.message}. Check your API is running and CORS is enabled.`);}}
+function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej(new Error('File read failed'));r.readAsDataURL(file);});}
+function renderResult(data,ftype){document.getElementById('emptyState').style.display='none';const rc=document.getElementById('resultContent');rc.style.display='flex';rc.style.flexDirection='column';rc.style.gap='14px';const bc={pdf:'badge-pdf',docx:'badge-docx',image:'badge-image'};const b=document.getElementById('resultBadge');b.textContent=ftype.toUpperCase();b.className=`badge ${bc[ftype]||''}`;document.getElementById('resultFilename').textContent=data.fileName;document.getElementById('resultTs').textContent=new Date().toLocaleString();document.getElementById('summaryText').textContent=data.summary||'No summary available.';const s=data.sentiment||'Neutral';const sm={Positive:{emoji:'😊',cls:'sc-pos',color:'var(--pos)',sub:'Overall positive tone'},Negative:{emoji:'😟',cls:'sc-neg',color:'var(--neg)',sub:'Overall negative tone'},Neutral:{emoji:'😐',cls:'sc-neu',color:'var(--neu)',sub:'Overall neutral tone'}};const sv=sm[s]||sm.Neutral;document.getElementById('sentimentCircle').innerHTML=sv.emoji;document.getElementById('sentimentCircle').className=`sentiment-circle ${sv.cls}`;document.getElementById('sentimentLabel').textContent=s;document.getElementById('sentimentLabel').style.color=sv.color;document.getElementById('sentimentSub').textContent=sv.sub;const ents=data.entities||{};const ed=[{key:'names',label:'People',icon:'👤'},{key:'dates',label:'Dates',icon:'📅'},{key:'organizations',label:'Organizations',icon:'🏢'},{key:'amounts',label:'Amounts',icon:'💰'}];document.getElementById('entitiesGrid').innerHTML=ed.map(({key,label,icon})=>{const v=ents[key]||[];const tags=v.length?v.map(x=>`<span class="entity-tag">${x}</span>`).join(''):`<span class="entity-empty">none found</span>`;return`<div class="entity-card"><div class="entity-type">${icon} ${label}</div><div class="entity-list">${tags}</div></div>`;}).join('');document.getElementById('jsonBlock').innerHTML=syntaxHighlight(JSON.stringify(data,null,2));jsonVisible=false;document.getElementById('jsonBlock').style.display='none';document.querySelector('.toggle-json').textContent='Show JSON';}
+function syntaxHighlight(j){return j.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"([^"]+)":/g,'<span class="jk">"$1"</span>:').replace(/: "([^"]*)"/g,': <span class="js">"$1"</span>').replace(/: (true|false|null)/g,': <span class="jv">$1</span>').replace(/: (\d+\.?\d*)/g,': <span class="jv">$1</span>');}
+function toggleJson(){jsonVisible=!jsonVisible;document.getElementById('jsonBlock').style.display=jsonVisible?'block':'none';document.querySelector('.toggle-json').textContent=jsonVisible?'Hide JSON':'Show JSON';}
+function addToRecent(data,ftype){recentResults.unshift({...data,ftype,time:new Date()});if(recentResults.length>5)recentResults.pop();renderRecent();}
+function renderRecent(){const s=document.getElementById('recentSection'),l=document.getElementById('recentList');if(!recentResults.length){s.style.display='none';return;}s.style.display='block';const sm={Positive:'s-pos',Negative:'s-neg',Neutral:'s-neu'};l.innerHTML=recentResults.map((r,i)=>`<div class="recent-item" onclick="showRecent(${i})"><span>${getFileIcon(r.ftype).icon}</span><div style="flex:1;min-width:0"><div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fileName}</div><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">${r.time.toLocaleTimeString()}</div></div><span class="recent-sentiment ${sm[r.sentiment]||'s-neu'}">${r.sentiment}</span></div>`).join('');}
+function showRecent(i){const r=recentResults[i];renderResult(r,r.ftype);}
+function setLoading(on){document.getElementById('loadingState').style.display=on?'flex':'none';document.getElementById('emptyState').style.display=on?'none':(document.getElementById('resultContent').style.display==='none'?'flex':'none');document.getElementById('btnSpinner').style.display=on?'block':'none';document.getElementById('btnText').textContent=on?'Analyzing...':'⚡ Analyze Document';document.getElementById('analyzeBtn').disabled=on;['ls1','ls2','ls3','ls4'].forEach(id=>document.getElementById(id).classList.remove('active'));}
+function hideResults(){document.getElementById('resultContent').style.display='none';document.getElementById('emptyState').style.display='flex';hideError();}
+function showError(msg){document.getElementById('errorBox').style.display='block';document.getElementById('errorMsg').textContent=msg;document.getElementById('loadingState').style.display='none';document.getElementById('emptyState').style.display='none';}
+function hideError(){document.getElementById('errorBox').style.display='none';}
+</script>
+</body>
+</html>
