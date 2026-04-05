@@ -5,7 +5,7 @@ An AI-powered document processing API that extracts text, generates summaries, i
 
 Built for **GUVI Hackathon 2026 — Track 2: AI-Powered Document Analysis & Extraction**.
 
-<img width="872" height="127" alt="image" src="https://github.com/user-attachments/assets/899b9d36-2763-4b8e-a46b-012e121ae88e" />
+<img width="619" height="129" alt="image" src="https://github.com/user-attachments/assets/63d6f44a-d3f3-47f6-a62f-021a770310d9" />
 
 ---
 
@@ -193,3 +193,21 @@ doc-analyzer/
 
 <img width="1294" height="649" alt="Screenshot from 2026-04-04 23-05-04" src="https://github.com/user-attachments/assets/7b75e22c-e901-4429-b499-084aa84849b8" />
 
+----
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file
+
+
+⭐ Star this repo if you find it helpful!
+
+--------
+
+👨‍💻 Narendran Karthikeyan
+
+🔗 Building for fun ❤️
+
+📎 [LinkedIn](https://github.com/iamnarendran) | [GitHub](https://www.linkedin.com/in/narendran-karthikeyan%F0%9F%8C%B3-95862423b)|
+
+------
